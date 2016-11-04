@@ -1,0 +1,125 @@
+---
+title: "Simulating linear mixed models"
+output: html_notebook
+---
+
+# Overview
+
+To simulate a mixed model, one needs to go through the following steps:
+
+1. define the data-frame's independent variables. 
+2. decide on true effect sizes
+3. generate data, based on the true model (potentially different ones)
+
+Once that is done, one can start fitting different types of models to the generated data. With this approach it is possible to, for example, generate data using two different true models and fit the same two models to both "datasets". Then, one can check whether the two fitted models actually correctly identify the two datasets "as theirs". 
+
+In this document, I'm going to show how to use this approach to check how and when to add categorical variables as random slopes.
+
+# Setup
+load required packages:
+```{r}
+library(ggplot2)
+library(gridExtra)
+set.seed(12345) # make random numbers reproducible
+```
+
+
+# Creating the dataset
+
+The idea is to mimic datasets as they occur in decision-making experiments. 
+
+We'll start as simple as possible - one factor with two levels - and build up the complexity after having understood each part.
+
+## Step 1: define independent variable(s)
+
+The simple structure we're starting with consists of:
+* one factor `condition`, with two levels `A` and `B`. 
+* multiple `subjects`, say 24; these are our grouping factors in the mixed-model hierarchy
+* multiple decisions each subject makes, identified by the numeric `trial`. 
+
+Note: The `trial` variable could, in principle, be a treated as a factor or a numerical variable. Ignoring why we would choose one or another type of variable for now, let's just stick with numeric for now.
+
+
+```{r}
+n_subjects <- 24
+n_trials <- 15
+df_simple <- expand.grid(trial=seq(1,n_trials),
+                         subject=factor(seq(1,n_subjects)),
+                         condition=c("A","B"))
+str(df_simple)
+```
+
+This gives us already a dataset with 720 observations. 
+
+## Step 2: define the true model for dependent variable
+
+Now, we are going to use a mixed model to define the value of a decision outcome (our DV). Let's say participants had to decide how much they want to invest from 0 to 10, in whole numbers. The rounding to whole numbers will actually create additional "noise", so let's actually create two different variables, one with rounding and one without and check whether that makes any difference.
+
+So step one is to decide what kind of effects we want to have. Let's say participants would, on average, invest 4 in condition "A", while invest 6.5, on average, in condition "B". Let's also say that there is no effect of `trial`. This means that participants choose the same way throuout the whole experiment. Let's create a simple DV without any additional variability:
+```{r}
+# use explicit, logical checks to assign condition mean values
+# Note: there are many other ways to code this up, but I consider this the most easily understandable one
+df_simple$DV_pure <- (df_simple$condition=="A") * 4 + (df_simple$condition=="B") * 6.5
+```
+
+Let's plot this:
+```{r}
+ggplot(df_simple, aes(condition, DV_pure)) +
+  geom_jitter(height=0) # jitter points along x-axis only
+```
+
+
+Now, realistically, we know that each participant will have some variability in their answers. That is, in exactly the same condition, the same person might answer somewhat differently, for example, investing 4 one time, and 5 another time. Importantly, we have to decide how we want to make this variability be in the true model. 
+
+The simplest one is that we model this by adding a random number to each decision. However, saying we want to add a random number is not specific enough - random how? There are many distributions of random numbers that we consider. Linear regression, and linear mixed-models for that matter, propose to use normally distributed numbers, such that for each decision, we take one randomly drawn number from the same normal distribution. In addition, linear regression, fixes the mean of the normal distribution to zero, because we want to vary *around* the averages we defined above. So the only free parameter that we need to choose is the variance/standard deviation of this normal distribution. Let's say the `sd` is 1 for now:
+s
+```{r}
+sigma_epsilon <- 1
+# we're adding the random noise to the 'pure' version of the means
+df_simple$DV_noise <- df_simple$DV_pure + rnorm(nrow(df_simple),mean=0,sd=sigma_epsilon)
+```
+
+Let's plot this:
+```{r}
+ggplot(df_simple, aes(condition, DV_noise)) +
+  geom_jitter(height=0) # jitter points along x-axis only
+```
+So, now we have the situation where all participants have exactly the same average investment amount. That is also unrealistic. Instead, it is much more likely that each subject will have their own mean investment amount, which will be around the population average (the 4 and 6.5 defined above). So, in addition to the completely random noise we already added, we need to add to each subject a new, subject-specific mean investment amount. We have `r nlevels(droplevels(df_simple$subject))` participants, so we need to add that many "means".
+
+Now, we are getting into the territory of mixed models. Linear mixed-models propose that each participant's "mean" is a random number (just like the noise above), stemming from a normal distribution with a certain variance and zero mean. Let's create those, using a standard deviation of 1. 
+```{r}
+# create random intercept for each subject
+sigma_intercept <- 1
+random_mean <- rnorm(n_subjects,mean=0,sd=sigma_intercept)
+
+# add random intercept to DV
+df_simple$DV_intercept <- df_simple$DV_noise + random_mean[as.numeric(df_simple$subject)]
+
+```
+
+And let's look at the "mixed" data:
+```{r}
+ggplot(df_simple, aes(condition, DV_intercept)) +
+  geom_jitter(height=0) # jitter points along x-axis only
+```
+
+Looking closely, we can notice that the range of numbers has increased. And when we compare the values of a specific subjects,
+```{r}
+p1 <- ggplot(subset(df_simple,subject=="13"), aes(condition,DV_intercept)) + 
+              geom_point() + # jitter points along x-axis only
+              ylim(0,10)
+p2 <- ggplot(subset(df_simple,subject=="13"), aes(condition,DV_noise)) + 
+              geom_point() + # jitter points along x-axis only
+              ylim(0,10)
+grid.arrange(p1,p2,ncol=2)
+```
+
+and see that in the left panel (`DV_intercept`), the values have indeed shifted, for all values. However, we can notice that this shift is the same for both conditions. Again, to make this more realistic, we might want to add two random numbers to each subject's conditions, so that all values of condition "A" are shifted up or down, and so are the values of condition B, but *independently*!
+
+If we start to vary, for each subject, the mean of each condition randomly, this will mean that the difference between the two conditions (a.k.a. the effect of `condition`) will be different for each participant. Now this finally leads us to the main point of this document: How do handle random slopes for categorical variables.
+
+
+
+
+
+

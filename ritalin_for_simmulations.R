@@ -1,0 +1,115 @@
+
+#### summary ####
+
+Linear mixed model fit by REML ['lmerMod']
+Formula: FinalInvestment ~ Drug * Trust * Probability * Order * RunNo +      (Drug + Trust + Probability | Subject)
+Data: data
+
+REML criterion at convergence: 16534.4
+
+Scaled residuals: 
+  Min      1Q  Median      3Q     Max 
+-3.2173 -0.6979 -0.0956  0.6378  3.2056 
+
+Random effects:
+  Groups   Name         Variance Std.Dev. Corr                   
+Subject  (Intercept)  0.85882  0.9267                          
+Drug1        0.08249  0.2872    0.34                  
+Trust1       0.26720  0.5169   -0.13  0.14            
+Trust2       0.32097  0.5665   -0.58 -0.18  0.04      
+Probability1 0.42669  0.6532    0.28 -0.51 -0.05  0.10
+Residual              6.88857  2.6246                          
+Number of obs: 3401, groups:  Subject, 24
+
+Fixed effects:
+  Estimate Std. Error t value
+(Intercept)                             4.621167   0.223695  20.658
+Drug1                                   0.093996   0.133006   0.707
+Trust1                                  0.643722   0.199086   3.233
+Trust2                                  0.140499   0.204528   0.687
+Probability1                            0.192967   0.178975   1.078
+Order1                                  0.095092   0.223695   0.425
+RunNo                                  -0.110707   0.055187  -2.006
+Drug1:Trust1                           -0.113853   0.168825  -0.674
+Drug1:Trust2                            0.141657   0.168689   0.840
+Drug1:Probability1                     -0.163896   0.119381  -1.373
+Trust1:Probability1                     0.375934   0.168821   2.227
+Trust2:Probability1                    -0.030033   0.168691  -0.178
+Drug1:Order1                           -0.119634   0.133006  -0.899
+Trust1:Order1                           0.090119   0.199086   0.453
+Trust2:Order1                           0.009020   0.204528   0.044
+Probability1:Order1                     0.303819   0.178975   1.698
+Drug1:RunNo                             0.007741   0.055184   0.140
+Trust1:RunNo                           -0.174747   0.078007  -2.240
+Trust2:RunNo                            0.047061   0.077925   0.604
+Probability1:RunNo                      0.644291   0.055184  11.675
+Order1:RunNo                           -0.101801   0.055187  -1.845
+Drug1:Trust1:Probability1              -0.108388   0.168810  -0.642
+Drug1:Trust2:Probability1              -0.331290   0.168687  -1.964
+Drug1:Trust1:Order1                     0.029759   0.168825   0.176
+Drug1:Trust2:Order1                     0.076726   0.168689   0.455
+Drug1:Probability1:Order1               0.163021   0.119381   1.366
+Trust1:Probability1:Order1              0.177803   0.168821   1.053
+Trust2:Probability1:Order1             -0.103118   0.168691  -0.611
+Drug1:Trust1:RunNo                      0.025749   0.078006   0.330
+Drug1:Trust2:RunNo                      0.005659   0.077923   0.073
+Drug1:Probability1:RunNo                0.082260   0.055182   1.491
+Trust1:Probability1:RunNo              -0.009127   0.078005  -0.117
+Trust2:Probability1:RunNo               0.122727   0.077924   1.575
+Drug1:Order1:RunNo                      0.084808   0.055184   1.537
+Trust1:Order1:RunNo                    -0.038792   0.078007  -0.497
+Trust2:Order1:RunNo                    -0.056093   0.077925  -0.720
+Probability1:Order1:RunNo              -0.087455   0.055184  -1.585
+Drug1:Trust1:Probability1:Order1        0.217755   0.168810   1.290
+Drug1:Trust2:Probability1:Order1        0.283998   0.168687   1.684
+Drug1:Trust1:Probability1:RunNo         0.006443   0.078001   0.083
+Drug1:Trust2:Probability1:RunNo         0.122542   0.077923   1.573
+Drug1:Trust1:Order1:RunNo              -0.033776   0.078006  -0.433
+Drug1:Trust2:Order1:RunNo              -0.044999   0.077923  -0.577
+Drug1:Probability1:Order1:RunNo         0.078949   0.055182   1.431
+Trust1:Probability1:Order1:RunNo       -0.041165   0.078005  -0.528
+Trust2:Probability1:Order1:RunNo        0.056732   0.077924   0.728
+Drug1:Trust1:Probability1:Order1:RunNo -0.220458   0.078001  -2.826
+Drug1:Trust2:Probability1:Order1:RunNo -0.073794   0.077923  -0.947
+
+
+#### anova ####
+Mixed Model Anova Table (Type 3 tests)
+
+Model: FinalInvestment ~ Drug * Trust * Probability * Order * RunNo + 
+  Model:     (Drug + Trust + Probability | Subject)
+Data: data
+num Df   den Df F.scaling        F    Pr(>F)    
+Drug                                    1  337.369   1.00000   0.4994 0.4802529    
+Trust                                   2  148.036   0.99407   6.9652 0.0012854 ** 
+  Probability                             1   62.590   1.00000   1.1624 0.2850965    
+Order                                   1   40.183   1.00000   0.1807 0.6730361    
+RunNo                                   1 3244.063   1.00000   4.0239 0.0449434 *  
+  Drug:Trust                              2 3244.428   1.00000   0.3961 0.6729757    
+Drug:Probability                        1 3244.313   1.00000   1.8847 0.1699001    
+Trust:Probability                       2 3244.272   1.00000   3.0572 0.0471554 *  
+  Drug:Order                              1  337.369   1.00000   0.8090 0.3690612    
+Trust:Order                             2  148.036   0.99407   0.1235 0.8839023    
+Probability:Order                       1   62.590   1.00000   2.8816 0.0945642 .  
+Drug:RunNo                              1 3244.012   1.00000   0.0197 0.8884551    
+Trust:RunNo                             2 3244.115   1.00000   2.6812 0.0686323 .  
+Probability:RunNo                       1 3243.848   1.00000 136.3049 < 2.2e-16 ***
+  Order:RunNo                             1 3244.063   1.00000   3.4025 0.0651898 .  
+Drug:Trust:Probability                  2 3244.087   1.00000   3.6769 0.0254071 *  
+  Drug:Trust:Order                        2 3244.428   1.00000   0.2115 0.8094015    
+Drug:Probability:Order                  1 3244.313   1.00000   1.8646 0.1721926    
+Trust:Probability:Order                 2 3244.272   1.00000   0.5595 0.5715389    
+Drug:Trust:RunNo                        2 3244.076   1.00000   0.0917 0.9124133    
+Drug:Probability:RunNo                  1 3243.987   1.00000   2.2221 0.1361485    
+Trust:Probability:RunNo                 2 3243.894   1.00000   1.5344 0.2157429    
+Drug:Order:RunNo                        1 3244.012   1.00000   2.3616 0.1244494    
+Trust:Order:RunNo                       2 3244.115   1.00000   0.7445 0.4750751    
+Probability:Order:RunNo                 1 3243.848   1.00000   2.5114 0.1131228    
+Drug:Trust:Probability:Order            2 3244.087   1.00000   4.4334 0.0119456 *  
+  Drug:Trust:Probability:RunNo            2 3243.798   1.00000   1.7324 0.1770248    
+Drug:Trust:Order:RunNo                  2 3244.076   1.00000   0.5109 0.6000050    
+Drug:Probability:Order:RunNo            1 3243.987   1.00000   2.0468 0.1526258    
+Trust:Probability:Order:RunNo           2 3243.894   1.00000   0.2833 0.7533249    
+Drug:Trust:Probability:Order:RunNo      2 3243.798   1.00000   7.6663 0.0004769 ***
+  ---
+  Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1

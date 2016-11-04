@@ -1,0 +1,116 @@
+---
+title: "Simulating Mixed-model datasets"
+output: html_notebook
+---
+
+In this document, we're describing how to generate datasets that have a within-subject (i.e. requiring mixed-models) design as commonly encountered in decision making experiments. 
+
+## Step 1: Generate independent variable structure
+
+We're starting by mimicking Catalina's Ritalin Trust Game dataset structure.
+
+We have - all within subject:
+* two session: drug on/off
+* within each session
+** three partners: computer, face trustworthy, face untrustworthy
+** two behaviors: high reciprocation, low reciprocation
+** for each combination of the above, we have 12 rounds
+
+And let's have 24 subjects, half of which do drug in order AB, while other half do drug in order BA. 
+
+So let's create the dataframe. Being lazy, I'm first defining the dataframe like this:
+
+```{r}
+df_trustgame <- expand.grid (drug=c("on","off"),
+                             partner=c("computer","face trusty","face untrusty"),
+                             behavior=c("high reciprocation","low reciprocation"),
+                             round=seq(1,12),
+                             order=c("on/off","off/on"),
+                             subjects=paste(seq(1,12)) # force subject to be a factor
+                             )
+str(df_trustgame)
+```
+
+However, in this format, subject "1" shows up with both orders:
+```{r}
+summary(df_trustgame[df_trustgame$subjects=="1",])
+```
+So, to make it clear that subject "1" in one order is not the same person as subject "1" in the other order, I create the interaction term, and replace subject with that.
+```{r}
+df_trustgame$subjects_new <- as.factor(paste(df_trustgame$subjects,df_trustgame$order))
+
+summary(df_trustgame[df_trustgame$subjects_new=="1 on/off",])
+str(df_trustgame$subjects_new)
+```
+The `subject_new` factor has the correct number of levels, namely 24. Let's just recode the subject into number 1-24 and delete the old, incorrect numbers.
+
+```{r}
+levels(df_trustgame$subjects_new) <- paste(seq(1,24))
+df_trustgame$subjects <- df_trustgame$subjects_new
+df_trustgame$subjects_new <- NULL
+```
+
+So let's inspect the basic structure of the dataframe
+```{r}
+str(df_trustgame)
+```
+
+This contains all the necessary information.
+
+For convenience, we already create a `session` variable, which indicates whether the subject is participating the first or the second time.
+```{r}
+df_trustgame$session <- factor( ifelse( (df_trustgame$drug=="on" & df_trustgame$order == "on/off" ) | 
+                                  (df_trustgame$drug=="off" & df_trustgame$order == "off/on" ),
+                                "first", "second"))
+str(df_trustgame)
+summary(df_trustgame$session)
+```
+
+
+## Step 2: Calculate dependent variable value
+
+The main thing is that the DV is in a within-subject design, with at least a random intercept for subject. So, what other factors contribute as random factors (intercepts or slopes) is unknown for the real datasets, so we're going to create a bunch of DVs, with some/all combinations that we think are potentially relevant. 
+
+Then, we can fit the mixed models to these different DVs, and see how the fitted parameters change/match the known true values. This way, we can check model specification mismatch and its effects on the estimated parameters. 
+
+For now, we start only with a continuous dependent variable. 
+
+### fixed effect-sizes
+First, let's define the effect sizes of the fixed effects. Note that to make comparison easier to the real datasets, we're using the same coding of effects.
+```{r}
+#### Main effects
+b_drug <- 0.5 # on - off
+
+b_parntner_com_trusty <- 0.5 # trustworthy face - computer
+b_parntner_com_untrusty <- 0.5 # untrustworthy face - computer
+
+b_behavior <- 0.5 # high - low
+
+b_round <- 0.5 # continuous variable
+
+b_order <- 0.5 # off/on - on/off
+
+b_session <- 0.5 # second - first
+
+#### Interactions
+
+
+```
+
+
+### random intercept for subject
+This is the minimalistic within-subject model
+```{r}
+# make random numbers reproducible
+set.seed(123456)
+
+
+```
+
+
+
+
+## Step 3: Visualize data
+
+
+
